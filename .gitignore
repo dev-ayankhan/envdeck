@@ -1,0 +1,6 @@
+node_modules
+dist
+.envdeck/generated
+*.log
+.env*
+!.env.example
