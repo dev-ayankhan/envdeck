@@ -1,27 +1,23 @@
 # envdeck 🛡️
 
-**The modern, type-safe standard for environment variable management.**
+**The production-grade environment variable manager with runtime validation for JavaScript and TypeScript. Safely validate, parse, and manage environment variables across runtimes with dotenv compatibility and modern framework support.**
 
 [![npm version](https://img.shields.io/npm/v/envdeck.svg)](https://www.npmjs.com/package/envdeck)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![npm downloads](https://img.shields.io/npm/dm/envdeck.svg)](https://www.npmjs.com/package/envdeck)
 
-## 📋 Release Status
-
-| Version | Status | Notes                                                       |
-| ------- | ------ | ----------------------------------------------------------- |
-| 1.0.0   | Stable | Initial production release with full type generation & CLI. |
+`envdeck` ensures your application's environment variables are **runtime-safe** and **type-safe**. It validates your environment variables and automatically generates TypeScript types, providing a seamless developer experience with zero runtime overhead.
 
 ---
 
 ## ✨ Features
 
-- 🚫 **Stop using `process.env`**: Say goodbye to `undefined` and type-casting.
-- 💎 **Zero-Config Type Inference**: Automatically infers `number`, `boolean`, and `string[]` from your `.env`.
-- ✅ **First-Class Zod Support**: Use the power of Zod for complex validation schemas.
-- 🚀 **Dynamic Type Generation**: Generates native TypeScript definitions for perfect IntelliSense.
-- 🔒 **Frontend Safety**: Built-in protection to prevent leaking server secrets to the client.
-- 📦 **Monorepo Ready**: Workspace-aware environment resolution.
-- 🛡️ **Production Grade**: Circular expansion protection, secret masking, and high-performance caching.
+- 💎 **Type-Safe by Default**: Automatically infers types and generates native TypeScript definitions.
+- ✅ **Schema Validation**: Use the full power of Zod to validate your environment variables.
+- 🚀 **Runtime Safety**: Catch configuration errors at startup before they reach production.
+- 🔒 **Frontend Protection**: Safely separate public and private variables for Next.js and Vite.
+- 📦 **Monorepo Support**: Workspace-aware configuration that scales with your project.
+- 🖥️ **CLI Suite**: Powerful tools for initialization, type generation, and validation.
 
 ---
 
@@ -34,6 +30,8 @@ npm install envdeck
 ```
 
 ### 2. Initialize
+
+Bootstrap your project and setup the environment structure:
 
 ```bash
 npx envdeck init
@@ -81,18 +79,81 @@ export default createEnv({
 });
 ```
 
+### 4. Use in Your Code
+
+Import your validated, type-safe environment variables from the generated runtime:
+
+```ts
+import { env } from "envdeck/runtime";
+
+// Inferred as number
+const port = env.PORT;
+
+// Inferred as "development" | "production" | "test"
+if (env.NODE_ENV === "production") {
+  // ...
+}
+```
+
 ---
 
 ## 🖥️ CLI Reference
 
-| Command           | Description                                                 |
-| ----------------- | ----------------------------------------------------------- |
-| `envdeck init`     | Bootstraps the project and adds `.envdeck/` to `.gitignore`. |
-| `envdeck types`    | Scans your environment and generates types.                 |
-| `envdeck validate` | Validates current environment against your schema.          |
-| `envdeck example`  | Generates a safe `.env.example` with masked secrets.        |
-| `envdeck docs`     | Generates beautiful Markdown/JSON documentation.            |
-| `envdeck dev`      | Watch mode: Auto-regenerates types as you edit `.env`.      |
+| Command            | Description                                                       |
+| ------------------ | ----------------------------------------------------------------- |
+| `envdeck init`     | Bootstraps the project and adds `.envdeck/` to `.gitignore`.      |
+| `envdeck types`    | Scans your environment and generates TypeScript types.            |
+| `envdeck validate` | Validates current environment against your schema.                |
+| `envdeck example`  | Generates a safe `.env.example` with masked secrets.              |
+| `envdeck dev`      | Watch mode: Auto-regenerates types as you edit `.env`.            |
+| `envdeck docs`     | Generates beautiful Markdown/JSON documentation.                  |
+| `envdeck doctor`   | Checks your environment and provides suggestions for improvement. |
+
+---
+
+## 🛠️ Advanced Examples
+
+### Complex Validation
+
+Leverage Zod's full power for complex environment configurations:
+
+```ts
+const env = createEnv({
+  // Transform strings to arrays automatically
+  ADMIN_EMAILS: z.string().transform((s) => s.split(",")),
+  // Custom regex and default values
+  API_TIMEOUT: z
+    .string()
+    .regex(/^\d+ms$/)
+    .default("5000ms"),
+});
+```
+
+### Frontend Framework Integration
+
+`envdeck` automatically identifies public variables based on your framework:
+
+```ts
+// envdeck.config.ts
+export const env = createEnv({
+  // Exposed to client-side (Next.js)
+  NEXT_PUBLIC_API_URL: z.string().url(),
+  // Hidden from client-side
+  DATABASE_SECRET: z.string(),
+});
+```
+
+---
+
+## ⚖️ Comparison
+
+| Feature             | `dotenv` | `envalid` | `envdeck` |
+| ------------------- | :------: | :-------: | :-------: |
+| **Type Inference**  |    ❌    |    ⚠️     |    ✅     |
+| **Zod Support**     |    ❌    |    ❌     |    ✅     |
+| **Type Generation** |    ❌    |    ❌     |    ✅     |
+| **CLI Tools**       |    ❌    |    ❌     |    ✅     |
+| **Frontend Safety** |    ❌    |    ❌     |    ✅     |
 
 ---
 
@@ -119,9 +180,9 @@ This directory contains:
 
 **Why physical files?**
 
-1. **Zero runtime overhead**: No AST parsing or complex proxies at runtime.
-2. **Perfect IDE Support**: VSCode and other IDEs pick up the changes instantly.
-3. **No magic**: Everything is standard TypeScript.
+1. **Zero Runtime Overhead**: No AST parsing or complex proxies at runtime.
+2. **Perfect IDE Support**: VSCode and other IDEs pick up the generated types instantly.
+3. **Transparency**: Everything is standard TypeScript; there's no magic.
 
 ---
 
@@ -158,6 +219,12 @@ npx envdeck validate --ci
 
 ---
 
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
 ## 📜 License
 
-MIT © [Ayan](https://github.com/dev-ayankhan/envdeck)
+MIT © Ayan

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-05-16
+
+### Changed
+- Improved npm metadata and SEO discoverability.
+- Enhanced documentation with badges, comparisons, and advanced usage examples.
+- Optimized package keywords for better search ranking.
+- Added repository, homepage, and bugs fields to package configuration.
+- Enabled npm provenance support for secure publishing.
+
 ## [1.0.0] - 2026-05-10
 
 ### Added

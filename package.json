@@ -5,8 +5,8 @@
     "url": "https://ayankhan.co.in"
   },
   "name": "envdeck",
-  "version": "1.0.0",
-  "description": "Production-grade environment variable management.",
+  "version": "1.0.1",
+  "description": "Production-grade environment variable management with runtime validation for JavaScript and TypeScript. Safely validate, parse, and manage environment variables across runtimes with dotenv compatibility and modern framework support.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -14,9 +14,21 @@
     "envdeck": "dist/cli/index.js"
   },
   "files": [
-    "dist",
-    "runtime"
+    "dist"
   ],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dev-ayankhan/envdeck.git"
+  },
+  "homepage": "https://github.com/dev-ayankhan/envdeck#readme",
+  "bugs": {
+    "url": "https://github.com/dev-ayankhan/envdeck/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -41,11 +53,26 @@
   "keywords": [
     "env",
     "dotenv",
-    "validation",
-    "typescript",
-    "zod",
+    "environment variables",
     "config",
-    "safe"
+    "configuration",
+    "validation",
+    "runtime validation",
+    "type-safe",
+    "type-safe config",
+    "environment config",
+    "config management",
+    "dotenv alternative",
+    "schema validation",
+    "environment configuration",
+    "production config",
+    "safe config",
+    "typescript",
+    "javascript",
+    "cross-platform config",
+    "framework config",
+    "vite env",
+    "nextjs env"
   ],
   "license": "MIT",
   "dependencies": {
