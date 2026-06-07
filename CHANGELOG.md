@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2026-06-07
+
+### Fixed
+
+- Fixed a circular dependency issue during config loading by implementing a Lazy-Initialized Target Proxy for the `env` object, preventing `Maximum call stack size exceeded` errors.
+- Fixed an edge-case bug where `jiti`'s default export unwrap conflicted with `ZodObject.prototype.default`, ensuring the proper Zod schema is loaded.
+- Updated schema inference and type generation to fully support Zod v4 architectures.
+
 ## [1.0.2] - 2026-06-07
 
 ### Fixed

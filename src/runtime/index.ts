@@ -35,7 +35,49 @@ export function getEnv(): EnvRecord {
   return cachedEnv;
 }
 
-export const env = getEnv();
+const proxyTarget = {} as EnvRecord;
+let targetInitialized = false;
+
+function initTarget() {
+  if (targetInitialized) return;
+  const realEnv = getEnv();
+  Object.assign(proxyTarget, realEnv);
+  Object.freeze(proxyTarget);
+  targetInitialized = true;
+}
+
+export const env = new Proxy(proxyTarget, {
+  get(_, prop) {
+    initTarget();
+    return Reflect.get(proxyTarget, prop);
+  },
+  has(_, prop) {
+    initTarget();
+    return Reflect.has(proxyTarget, prop);
+  },
+  ownKeys() {
+    initTarget();
+    return Reflect.ownKeys(proxyTarget);
+  },
+  getOwnPropertyDescriptor(_, prop) {
+    initTarget();
+    return Reflect.getOwnPropertyDescriptor(proxyTarget, prop);
+  },
+  isExtensible() {
+    initTarget();
+    return Reflect.isExtensible(proxyTarget);
+  },
+  preventExtensions() {
+    initTarget();
+    return Reflect.preventExtensions(proxyTarget);
+  },
+  set() {
+    return false;
+  },
+  deleteProperty() {
+    return false;
+  }
+});
 
 export function createEnv<T extends z.ZodRawShape>(shape: T) {
   return z.object(shape);

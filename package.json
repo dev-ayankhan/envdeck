@@ -5,7 +5,7 @@
     "url": "https://ayankhan.co.in"
   },
   "name": "envdeck",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Production-grade environment variable management with runtime validation for JavaScript and TypeScript. Safely validate, parse, and manage environment variables across runtimes with dotenv compatibility and modern framework support.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
