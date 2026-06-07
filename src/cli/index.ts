@@ -3,7 +3,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
 import { loadEnv } from "../loaders/env-loader";
-import { inferSchemaFromEnv } from "../validators/inference";
+import { loadSchema } from "../loaders/config-loader";
 import { generateTypes } from "../generators/type-generator";
 import { generateDocs } from "../generators/docs-generator";
 import { writeFileSync, existsSync, readFileSync, appendFileSync, watch } from "fs";
@@ -50,7 +50,7 @@ program
     const spinner = ora("Generating types...").start();
     try {
       const { local } = loadEnv({ mode: options.mode });
-      const schema = inferSchemaFromEnv(local);
+      const schema = loadSchema(local);
       generateTypes(schema, process.cwd());
       spinner.succeed(chalk.green("Types generated in .envdeck/generated"));
     } catch (err) {
@@ -65,7 +65,7 @@ program
   .option("--ci", "Fail hard on validation errors")
   .action((options) => {
     const { full, local } = loadEnv();
-    const schema = inferSchemaFromEnv(local);
+    const schema = loadSchema(local);
     
     // Warning for Zero-Config validation
     const configExists = ["envdeck.config.ts", "env.config.ts"].some(f => existsSync(f));
@@ -107,7 +107,7 @@ program
     const spinner = ora("Generating documentation...").start();
     try {
       const { local } = loadEnv();
-      const schema = inferSchemaFromEnv(local);
+      const schema = loadSchema(local);
       generateDocs(schema, options.format, process.cwd());
       spinner.succeed(chalk.green(`Documentation generated in ENV_DOCS.${options.format === "markdown" ? "md" : "json"}`));
     } catch (err) {
@@ -126,7 +126,7 @@ program
         console.log(chalk.gray(`\nChange detected in ${file}. Regenerating types...`));
         try {
           const { local } = loadEnv();
-          const schema = inferSchemaFromEnv(local);
+          const schema = loadSchema(local);
           generateTypes(schema, process.cwd());
           console.log(chalk.green("✨ Types regenerated."));
         } catch (err) {

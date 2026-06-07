@@ -2,9 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2026-06-07
+
+### Fixed
+
+- Fixed an issue where the `envdeck.config.ts` schema file was being ignored in favor of zero-config `.env` inference, breaking the strongly-typed Schema Mode.
+- Refactored `src/runtime/index.ts` and `src/cli/index.ts` to correctly respect and load user-defined schemas during runtime and CLI operations (`types`, `validate`, `docs`, `dev`).
+
+### Added
+
+- Integrated `jiti` as a dependency to dynamically parse and evaluate TypeScript/JavaScript configuration files (`envdeck.config.ts`, `env.config.js`) on the fly.
+
 ## [1.0.1] - 2026-05-16
 
 ### Changed
+
 - Improved npm metadata and SEO discoverability.
 - Enhanced documentation with badges, comparisons, and advanced usage examples.
 - Optimized package keywords for better search ranking.
@@ -14,6 +26,7 @@ All notable changes to this project will be documented in this file.
 ## [1.0.0] - 2026-05-10
 
 ### Added
+
 - Initial production release.
 - Zero-config environment variable inference.
 - Zod-based schema validation.

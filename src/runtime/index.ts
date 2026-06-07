@@ -1,8 +1,7 @@
 import { loadEnv } from "../loaders/env-loader.js";
-import { inferSchemaFromEnv, validateEnv } from "../validators/inference.js";
+import { validateEnv } from "../validators/inference.js";
+import { loadSchema } from "../loaders/config-loader.js";
 import { z } from "zod";
-import { existsSync } from "fs";
-import { join } from "path";
 
 export class EnvDeckValidationError extends Error {
   constructor(public errors: z.ZodFormattedError<Record<string, unknown>>) {
@@ -19,18 +18,7 @@ export function getEnv(): EnvRecord {
 
   const { full, local } = loadEnv();
 
-  const configPath = [
-    "envdeck.config.ts",
-    "env.config.ts",
-    "envdeck.config.js",
-    "env.config.js",
-  ]
-    .map((p) => join(process.cwd(), p))
-    .find((p) => existsSync(p));
-
-  const schema = configPath
-    ? inferSchemaFromEnv(local) // Schema Mode (V1 uses inference as fallback)
-    : inferSchemaFromEnv(local); // Zero-Config: infer from local vars only
+  const schema = loadSchema(local);
 
   const result = validateEnv(full, schema);
 
