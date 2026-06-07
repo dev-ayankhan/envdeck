@@ -6,7 +6,13 @@ import { loadEnv } from "../loaders/env-loader";
 import { loadSchema } from "../loaders/config-loader";
 import { generateTypes } from "../generators/type-generator";
 import { generateDocs } from "../generators/docs-generator";
-import { writeFileSync, existsSync, readFileSync, appendFileSync, watch } from "fs";
+import {
+  writeFileSync,
+  existsSync,
+  readFileSync,
+  appendFileSync,
+  watch,
+} from "fs";
 import { join } from "path";
 
 const program = new Command();
@@ -21,7 +27,7 @@ program
   .description("Initialize envdeck in the current directory")
   .action(() => {
     const spinner = ora("Initializing envdeck...").start();
-    
+
     // Create .env if it doesn't exist
     if (!existsSync(".env")) {
       writeFileSync(".env", "PORT=3000\nNODE_ENV=development\n");
@@ -38,7 +44,9 @@ program
 
     spinner.succeed(chalk.green("envdeck initialized!"));
     console.log(chalk.blue("\nNext steps:"));
-    console.log("1. Run " + chalk.bold("envdeck types") + " to generate typings");
+    console.log(
+      "1. Run " + chalk.bold("envdeck types") + " to generate typings",
+    );
     console.log("2. Import env from " + chalk.bold("envdeck/runtime"));
   });
 
@@ -66,11 +74,17 @@ program
   .action((options) => {
     const { full, local } = loadEnv();
     const schema = loadSchema(local);
-    
+
     // Warning for Zero-Config validation
-    const configExists = ["envdeck.config.ts", "env.config.ts"].some(f => existsSync(f));
+    const configExists = ["envdeck.config.ts", "env.config.ts"].some((f) =>
+      existsSync(f),
+    );
     if (!configExists) {
-      console.warn(chalk.yellow("⚠️  Running validate in Zero-Config mode. Validation is limited to structural checks of current values.\n"));
+      console.warn(
+        chalk.yellow(
+          "⚠️  Running validate in Zero-Config mode. Validation is limited to structural checks of current values.\n",
+        ),
+      );
     }
 
     const result = schema.safeParse(full);
@@ -102,14 +116,22 @@ program
 program
   .command("docs")
   .description("Generate environment documentation")
-  .option("-f, --format <format>", "Documentation format (markdown, json)", "markdown")
+  .option(
+    "-f, --format <format>",
+    "Documentation format (markdown, json)",
+    "markdown",
+  )
   .action((options) => {
     const spinner = ora("Generating documentation...").start();
     try {
       const { local } = loadEnv();
       const schema = loadSchema(local);
       generateDocs(schema, options.format, process.cwd());
-      spinner.succeed(chalk.green(`Documentation generated in ENV_DOCS.${options.format === "markdown" ? "md" : "json"}`));
+      spinner.succeed(
+        chalk.green(
+          `Documentation generated in ENV_DOCS.${options.format === "markdown" ? "md" : "json"}`,
+        ),
+      );
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       spinner.fail(chalk.red("Failed to generate documentation: " + message));
@@ -123,7 +145,9 @@ program
     console.log(chalk.blue("👀 envdeck is watching for changes..."));
     const watcher = (file: string) => {
       if (file.startsWith(".env")) {
-        console.log(chalk.gray(`\nChange detected in ${file}. Regenerating types...`));
+        console.log(
+          chalk.gray(`\nChange detected in ${file}. Regenerating types...`),
+        );
         try {
           const { local } = loadEnv();
           const schema = loadSchema(local);
@@ -135,7 +159,7 @@ program
         }
       }
     };
-    
+
     // Simple watch logic
     watch(process.cwd(), (_: string, filename: string | null) => {
       if (filename) watcher(filename);
@@ -150,18 +174,136 @@ program
     const issues: string[] = [];
 
     if (!existsSync(".env")) issues.push("Missing .env file");
-    if (!existsSync(".envdeck/generated/env.ts")) issues.push("Generated types not found. Run 'envdeck types'");
-    
+    if (!existsSync(".envdeck/generated/env.ts"))
+      issues.push("Generated types not found. Run 'envdeck types'");
+
     if (existsSync(".gitignore")) {
       const gitignore = readFileSync(".gitignore", "utf-8");
-      if (!gitignore.includes(".envdeck")) issues.push(".envdeck directory is not git-ignored");
+      if (!gitignore.includes(".envdeck"))
+        issues.push(".envdeck directory is not git-ignored");
     }
 
     if (issues.length === 0) {
       spinner.succeed(chalk.green("Everything looks perfect!"));
     } else {
       spinner.warn(chalk.yellow(`Found ${issues.length} potential issues:`));
-      issues.forEach(issue => console.log(chalk.red(`- ${issue}`)));
+      issues.forEach((issue) => console.log(chalk.red(`- ${issue}`)));
+    }
+  });
+
+program
+  .command("setup")
+  .description("Interactively scaffold missing environment variables")
+  .action(async () => {
+    const { local } = loadEnv();
+    const schema = loadSchema(local);
+
+    const configExists = [
+      "envdeck.config.ts",
+      "env.config.ts",
+      "env.config.js",
+    ].some((f) => existsSync(f));
+    if (!configExists) {
+      console.error(
+        chalk.red(
+          "❌ Zero-Config mode detected. Please define an envdeck.config.ts schema to use the interactive setup.",
+        ),
+      );
+      process.exit(1);
+    }
+
+    const shape = schema.shape;
+    const missingKeys: string[] = [];
+
+    for (const key of Object.keys(shape)) {
+      if (local[key] === undefined) {
+        missingKeys.push(key);
+      }
+    }
+
+    if (missingKeys.length === 0) {
+      console.log(
+        chalk.green(
+          "✅ All environment variables are already defined in your local environment!",
+        ),
+      );
+      return;
+    }
+
+    console.log(
+      chalk.blue(
+        `Found ${missingKeys.length} missing environment variable(s). Let's set them up!\n`,
+      ),
+    );
+
+    const readline = await import("node:readline/promises");
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    let newContent = "";
+    let addedCount = 0;
+
+    for (const key of missingKeys) {
+      const fieldSchema = shape[key];
+      const isOptional = fieldSchema.isOptional();
+      const description = fieldSchema.description
+        ? ` (${fieldSchema.description})`
+        : "";
+
+      let promptMsg = chalk.yellow(
+        `? Missing ${chalk.bold(key)}${chalk.gray(description)}`,
+      );
+      if (isOptional) {
+        promptMsg += chalk.gray(" [Optional, press Enter to skip]");
+      }
+      promptMsg += ": ";
+
+      let valid = false;
+      while (!valid) {
+        const answer = await rl.question(promptMsg);
+
+        if (!answer.trim() && isOptional) {
+          valid = true;
+          continue;
+        }
+
+        const parseResult = fieldSchema.safeParse(answer);
+
+        if (parseResult.success) {
+          newContent += `${key}=${answer}\n`;
+          addedCount++;
+          valid = true;
+        } else {
+          console.log(
+            chalk.red(
+              `  ❌ Invalid value: ${parseResult.error.issues[0]?.message || "Failed validation"}`,
+            ),
+          );
+        }
+      }
+    }
+
+    rl.close();
+
+    if (addedCount > 0) {
+      const targetFile = existsSync(".env.local") ? ".env.local" : ".env";
+      let contentToWrite = newContent;
+      if (existsSync(targetFile)) {
+        const currentFileContent = readFileSync(targetFile, "utf-8");
+        if (currentFileContent.length > 0 && !currentFileContent.endsWith("\n")) {
+          contentToWrite = "\n" + contentToWrite;
+        }
+      } else {
+        writeFileSync(targetFile, "");
+      }
+      appendFileSync(targetFile, contentToWrite);
+      console.log(
+        chalk.green(`\n✅ Added ${addedCount} variables to ${targetFile}!`),
+      );
+    } else {
+      console.log(chalk.gray("\nNo variables were added."));
     }
   });
 

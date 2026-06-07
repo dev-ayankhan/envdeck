@@ -103,6 +103,7 @@ if (env.NODE_ENV === "production") {
 | ------------------ | ----------------------------------------------------------------- |
 | `envdeck init`     | Bootstraps the project and adds `.envdeck/` to `.gitignore`.      |
 | `envdeck types`    | Scans your environment and generates TypeScript types.            |
+| `envdeck setup`    | Interactively prompts for missing variables using your schema.    |
 | `envdeck validate` | Validates current environment against your schema.                |
 | `envdeck example`  | Generates a safe `.env.example` with masked secrets.              |
 | `envdeck dev`      | Watch mode: Auto-regenerates types as you edit `.env`.            |

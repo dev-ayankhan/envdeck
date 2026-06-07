@@ -48,20 +48,43 @@ export const env = runtimeEnv as unknown as EnvDeck;
 function getTsType(zodType: z.ZodType): string {
   const def = zodType._def as any;
   const typeName = def?.typeName || def?.type;
+
+  if (
+    typeName === "default" ||
+    typeName === "optional" ||
+    typeName === "nullable" ||
+    typeName === "ZodDefault" ||
+    typeName === "ZodOptional" ||
+    typeName === "ZodNullable"
+  ) {
+    return getTsType(def.innerType);
+  }
+
   switch (typeName) {
     case "string":
+    case "ZodString":
       return "string";
     case "number":
+    case "ZodNumber":
       return "number";
     case "boolean":
+    case "ZodBoolean":
       return "boolean";
     case "enum":
+    case "ZodEnum":
       return Object.values(def.entries ?? {})
         .map((v) => `"${v}"`)
         .join(" | ");
+    case "array":
+    case "ZodArray":
+      const innerArrayType = def.element ?? def.type;
+      return innerArrayType
+        ? `Array<${getTsType(innerArrayType)}>`
+        : "unknown[]";
     case "pipe":
-      return "unknown"; // transform pipelines (e.g. string -> boolean/array)
+    case "ZodEffects":
     case "unknown":
+    case "ZodUnknown":
       return "unknown";
     default:
       return "unknown";

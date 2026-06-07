@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 2026-06-07
+
+### Fixed
+
+- Fixed `unknown` type.
+- Added type generation support for Zod `array` schemas (both Zod 3 and Zod 4 syntax), recursively inferring the inner type to output exact types (e.g., `Array<string>`) instead of `unknown`.
+
+### Added
+
+- **Interactive Scaffolding**: Introduced the `envdeck setup` CLI command. It interactively prompts developers for any missing environment variables based on their envdeck config schema, validates the input on the fly, and smartly auto-saves it to `.env` or `.env.local` without unnecessary empty lines.
+
 ## [1.0.3] - 2026-06-07
 
 ### Fixed
