@@ -56,6 +56,6 @@ describe("Stress & Edge Cases", () => {
     const schema = inferSchemaFromEnv(rawEnv);
     
     expect(() => generateTypes(schema, stressDir)).not.toThrow();
-    expect(existsSync(join(genDir, "generated/env.ts"))).toBe(true);
+    expect(existsSync(join(genDir, "generated/env.d.ts"))).toBe(true);
   });
 });

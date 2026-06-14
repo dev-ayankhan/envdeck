@@ -14,24 +14,17 @@ export function generateTypes(schema: EnvSchema, outDir: string) {
   const shape = schema.shape;
   const keys = Object.keys(shape);
 
-  // Generate env.d.ts
+  // Generate env.d.ts with module augmentation
   const dtsContent = `
-export interface EnvDeck {
-${keys.map((key) => `  ${key}: ${getTsType(shape[key])};`).join("\n")}
-}
+import "envdeck/runtime";
 
-export declare const env: EnvDeck;
+declare module "envdeck/runtime" {
+  export interface EnvDeck {
+${keys.map((key) => `    ${key}: ${getTsType(shape[key])};`).join("\n")}
+  }
+}
 `;
   writeFileSync(join(generatedDir, "env.d.ts"), dtsContent.trim());
-
-  // Generate env.ts (runtime bridge)
-  const tsContent = `
-import { env as runtimeEnv } from "envdeck/runtime";
-import { EnvDeck } from "./env.d";
-
-export const env = runtimeEnv as unknown as EnvDeck;
-`;
-  writeFileSync(join(generatedDir, "env.ts"), tsContent.trim());
 
   // Generate JSON schema for docs/tools
   // zod-to-json-schema v3.x types predate Zod 4 — runtime call works, cast needed for TS

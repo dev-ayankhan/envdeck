@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-06-14
+
+### Changed
+
+- **Architectural Update**: Switched from generating a physical `env.ts` wrapper file to a cleaner **Global Module Augmentation** approach (`env.d.ts`). This allows consumers to directly `import { env } from "envdeck/runtime"` without jumping through an intermediate wrapper, providing a vastly superior developer experience.
+- The `envdeck types` generator and `envdeck doctor` logic have been updated to support the new `env.d.ts` module augmentation file.
+- Test suites have been updated to reflect the removal of `env.ts`.
+
+### Added
+
+- Included `typesVersions` fallback inside `package.json` to ensure out-of-the-box TypeScript compatibility for legacy projects using `"moduleResolution": "node"` or CommonJS.
+
+### Documentation
+
+- Added a warning in `README.md` clarifying that users must include `.envdeck/generated/**/*` inside their `tsconfig.json` `include` array for the module augmentation to correctly resolve.
+
 ## [1.0.4] - 2026-06-07
 
 ### Fixed

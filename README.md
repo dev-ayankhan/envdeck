@@ -176,14 +176,22 @@ When generating examples or docs, `envdeck` automatically masks keys matching:
 `envdeck` works by generating a local `.envdeck/` directory in your project root.
 This directory contains:
 
-- `generated/env.d.ts`: The TypeScript interface for your environment.
-- `generated/env.ts`: A bridge that connects the types to the runtime singleton.
+- `generated/env.d.ts`: A global module augmentation file that strongly types the `envdeck/runtime` module.
 
-**Why physical files?**
+**Why physical files & module augmentation?**
 
-1. **Zero Runtime Overhead**: No AST parsing or complex proxies at runtime.
-2. **Perfect IDE Support**: VSCode and other IDEs pick up the generated types instantly.
-3. **Transparency**: Everything is standard TypeScript; there's no magic.
+1. **Zero Wrapper Imports**: You import directly from `"envdeck/runtime"`, and TypeScript magically infers the types globally.
+2. **Zero Runtime Overhead**: No AST parsing or complex proxies at runtime.
+3. **Perfect IDE Support**: VSCode and other IDEs pick up the generated types instantly.
+
+> [!IMPORTANT]
+> Because the generated types are placed inside a hidden folder (`.envdeck/`), you **must** tell TypeScript to include it. Ensure your `tsconfig.json` contains:
+>
+> ```json
+> {
+>   "include": ["src/**/*", ".envdeck/generated/**/*"]
+> }
+> ```
 
 ---
 

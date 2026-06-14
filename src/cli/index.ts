@@ -174,7 +174,7 @@ program
     const issues: string[] = [];
 
     if (!existsSync(".env")) issues.push("Missing .env file");
-    if (!existsSync(".envdeck/generated/env.ts"))
+    if (!existsSync(".envdeck/generated/env.d.ts"))
       issues.push("Generated types not found. Run 'envdeck types'");
 
     if (existsSync(".gitignore")) {

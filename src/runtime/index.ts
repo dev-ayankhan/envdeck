@@ -10,6 +10,8 @@ export class EnvDeckValidationError extends Error {
   }
 }
 
+export interface EnvDeck {}
+
 type EnvRecord = Record<string, unknown>;
 let cachedEnv: EnvRecord | null = null;
 
@@ -46,7 +48,7 @@ function initTarget() {
   targetInitialized = true;
 }
 
-export const env = new Proxy(proxyTarget, {
+export const env: EnvDeck = new Proxy(proxyTarget, {
   get(_, prop) {
     initTarget();
     return Reflect.get(proxyTarget, prop);
@@ -77,7 +79,7 @@ export const env = new Proxy(proxyTarget, {
   deleteProperty() {
     return false;
   }
-});
+}) as unknown as EnvDeck;
 
 export function createEnv<T extends z.ZodRawShape>(shape: T) {
   return z.object(shape);

@@ -27,7 +27,6 @@ describe("CLI", () => {
   it("envdeck types generates files", () => {
     execSync(`node ${binPath} types`, { cwd: testDir });
     expect(existsSync(join(testDir, ".envdeck/generated/env.d.ts"))).toBe(true);
-    expect(existsSync(join(testDir, ".envdeck/generated/env.ts"))).toBe(true);
   });
 
   it("envdeck example masks secrets", () => {
